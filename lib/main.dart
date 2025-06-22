@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:noots_app/src/featues/home_page/controller/home_controller.dart';
 import 'package:noots_app/src/routes/go_router.dart';
 import 'package:noots_app/src/theme/theme.dart';
 import 'package:provider/provider.dart';
@@ -13,7 +14,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [],
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => HomeController(),
+        )
+      ],
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
         routerDelegate: MyAppRouter.router.routerDelegate,

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:noots_app/src/featues/home_page/home_page.dart';
 import 'package:noots_app/src/routes/error_route.dart';
 import 'package:noots_app/src/routes/routs_transition.dart';
 
 class MyAppRouter {
   static final router = GoRouter(
-    initialLocation: '/${AppRoute.errorPage}',
+    initialLocation: '/${AppRoute.home}',
     routes: [
       GoRoute(
         name: AppRoute.errorPage,
@@ -16,15 +17,15 @@ class MyAppRouter {
           child: const ErrorPage(),
         ),
       ),
-      // GoRoute(
-      //   name: AppRoute.dashboard,
-      //   path: '/${AppRoute.dashboard}',
-      //   pageBuilder: (context, state) => buildPageWithFadeTransition<void>(
-      //     context: context,
-      //     state: state,
-      //     child: const DashboardPage(),
-      //   ),
-      // ),
+      GoRoute(
+        name: AppRoute.home,
+        path: '/${AppRoute.home}',
+        pageBuilder: (context, state) => buildPageWithFadeTransition<void>(
+          context: context,
+          state: state,
+          child: const HomePage(),
+        ),
+      ),
     ],
     errorPageBuilder: (context, state) {
       return const MaterialPage(child: ErrorPage());
@@ -41,4 +42,5 @@ class MyAppRouter {
 
 class AppRoute {
   static const String errorPage = 'error-page';
+  static const String home = 'home-page';
 }
