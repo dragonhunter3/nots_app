@@ -5,11 +5,13 @@ import 'package:sqflite/sqflite.dart';
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
   static Database? _database;
+
   factory DatabaseHelper() => _instance;
 
   DatabaseHelper._internal();
+
   Future<Database> get database async {
-    if (_database != Null) return _database!;
+    if (_database != null) return _database!;
     _database = await _initDatabase();
     return _database!;
   }
@@ -21,14 +23,14 @@ class DatabaseHelper {
 
   Future<void> _onCreate(Database db, int version) async {
     await db.execute('''
-CREATE TABLE NOTES(
-id INTEGER PRIMERY KEY AUTOINCREMENT,
-title Text,
-discription Text,
-color Text,
-dateTime Text
-)
-''');
+      CREATE TABLE notes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT,
+        discription TEXT,
+        color TEXT,
+        dateTime TEXT
+      )
+    ''');
   }
 
   Future<int> insertNote(NotesModel note) async {
@@ -44,12 +46,20 @@ dateTime Text
 
   Future<int> updateNote(NotesModel note) async {
     final db = await database;
-    return await db
-        .update("notes", note.toMap(), where: 'id = ?', whereArgs: [note.id]);
+    return await db.update(
+      "notes",
+      note.toMap(),
+      where: 'id = ?',
+      whereArgs: [note.id],
+    );
   }
 
   Future<int> deleteNote(NotesModel note) async {
     final db = await database;
-    return await db.delete("notes", where: 'id = ?', whereArgs: [note.id]);
+    return await db.delete(
+      "notes",
+      where: 'id = ?',
+      whereArgs: [note.id],
+    );
   }
 }
