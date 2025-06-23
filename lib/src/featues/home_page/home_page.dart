@@ -15,15 +15,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final DatabaseHelper _databaseHelper = DatabaseHelper();
   List<NotesModel> _notes = [];
-  final List<Color> _noteColors = [
-    Colors.amber,
-    Color(0xff50c878),
-    Colors.redAccent,
-    Colors.blueAccent,
-    Colors.indigo,
-    Colors.purpleAccent,
-    Colors.pinkAccent
-  ];
+
   @override
   void initState() {
     super.initState();
@@ -37,83 +29,108 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  String _formateDateTime(String dateTime) {
-    final DateTime dt = DateTime.parse(dateTime);
+  String _formatDateTime(String? dateTime) {
+    if (dateTime == null) return '';
+    final DateTime dt = DateTime.tryParse(dateTime) ?? DateTime.now();
     final now = DateTime.now();
     if (dt.year == now.year && dt.month == now.month && dt.day == now.day) {
-      return 'Today ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(0, '0')}';
+      return 'Today ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
     }
-    return '${dt.day}/${dt.month}/${dt.year}, ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(0, '0')}';
+    return '${dt.day}/${dt.month}/${dt.year}, ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: Text(
-            "Notes App",
-            style: textTheme(context)
-                .headlineMedium
-                ?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          centerTitle: true),
-      body: GridView.builder(
-        padding: EdgeInsets.all(16),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, crossAxisSpacing: 16, mainAxisSpacing: 16),
-        itemCount: _notes.length,
-        itemBuilder: (context, index) {
-          final notes = _notes[index];
-          final color = Color(int.parse(notes.color!));
-          return GestureDetector(
-            onTap: () async {
-              // await Navigator.push(context, MaterialPageRoute(builder:(context) => ViewScreen(note:notes),));
-              _loadNots();
-            },
-            child: Card(
-              child: Container(
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20), color: color),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      notes.title!,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: textTheme(context)
-                          .headlineSmall
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 10),
-                    Text(notes.discription!,
-                        maxLines: 4,
-                        overflow: TextOverflow.ellipsis,
-                        style: textTheme(context).titleMedium),
-                    Spacer(),
-                    Text(
-                      _formateDateTime(notes.dateTime!),
-                      style: textTheme(context).titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold, color: Colors.red),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
+        title: Text(
+          "Notes App",
+          style: textTheme(context)
+              .headlineMedium
+              ?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
       ),
+      body: _notes.isEmpty
+          ? Center(
+              child: Text(
+                'No notes yet!',
+                style: textTheme(context).titleMedium,
+              ),
+            )
+          : GridView.builder(
+              padding: const EdgeInsets.all(16),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              itemCount: _notes.length,
+              itemBuilder: (context, index) {
+                final note = _notes[index];
+                final color = note.color != null
+                    ? Color(int.tryParse(note.color!) ?? Colors.amber.value)
+                    : Colors.amber;
+
+                return GestureDetector(
+                  onTap: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ViewNoteScreen(note: note),
+                      ),
+                    );
+                    _loadNots();
+                  },
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    color: color,
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            note.title ?? 'No Title',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: textTheme(context)
+                                .headlineSmall
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            note.discription ?? 'No Description',
+                            maxLines: 4,
+                            overflow: TextOverflow.ellipsis,
+                            style: textTheme(context).titleMedium,
+                          ),
+                          const Spacer(),
+                          Text(
+                            _formatDateTime(note.dateTime),
+                            style: textTheme(context).titleSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AddEditScreen(),
-              ));
+            context,
+            MaterialPageRoute(builder: (context) => AddEditScreen()),
+          );
           _loadNots();
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
